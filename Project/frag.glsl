@@ -28,6 +28,6 @@ void main()
 
 	color = diffuse * texture(ourTexture, fs_in.TexCoord);
 
-	if (color.rgb == vec3(0.0, 0.0, 0.0)) //removes the black areas around the logo
-		discard;
+	//if (color.rgb == vec3(0.0, 0.0, 0.0)) //removes the black areas around the logo
+		//discard;
 }
