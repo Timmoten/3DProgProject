@@ -20,17 +20,18 @@
 #include <stdio.h>
 #include "Shader.h"
 #include "bth_image.h"
+#include "Camera.h"
 
 //function prototypes
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode); //creates the callback?
-void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-void do_movement();
+//void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode); //creates the callback?
+//void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+//void do_movement();
 
 //Window size
-const GLuint Width = 800, Height = 600;
+//const GLuint Width = 800, Height = 600;
 
 //Camera
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+/*glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
 glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
 glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -40,15 +41,20 @@ glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 GLfloat yaw = -90.0f;	// Yaw is initialized to -90.0 degrees since a yaw of 0.0 results in a direction vector pointing to the right (due to how Eular angles work) so we initially rotate a bit to the left.
 GLfloat pitch = 0.0f;
 GLfloat lastX = Width / 2.0;
-GLfloat lastY = Height / 2.0;
-bool keys[1024];
+GLfloat lastY = Height / 2.0;*/
+//bool keys[1024];
 
 // Deltatime
-GLfloat deltaTime = 0.0f;	// Time between current frame and last frame
-GLfloat lastFrame = 0.0f;  	// Time of last frame
+//GLfloat deltaTime = 0.0f;	// Time between current frame and last frame
+//GLfloat lastFrame = 0.0f;  	// Time of last frame
 
 int main()
 {
+	// Deltatime
+	GLfloat deltaTime = 0.0f;	// Time between current frame and last frame
+	GLfloat lastFrame = 0.0f;  	// Time of last frame
+
+	const GLuint Width = 800, Height = 600;
 	GLchar* VS = "vertex.glsl";
 	GLchar* GS = "geometry.glsl";
 	GLchar* FS = "frag.glsl";
@@ -73,8 +79,10 @@ int main()
 	glfwMakeContextCurrent(window);
 
 	//sets callback functions
-	glfwSetKeyCallback(window, key_callback); // registering the callback function
-	glfwSetCursorPosCallback(window, mouse_callback);
+	Camera cam(Width, Height);
+	glfwSetWindowUserPointer(window, &cam);
+	glfwSetKeyCallback(window, Camera::key_Callback); // registering the callback function
+	glfwSetCursorPosCallback(window, Camera::mouse_Callback);
 
 	//GLFW options
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -161,7 +169,7 @@ int main()
 		lastFrame = currentFrame;
 
 		glfwPollEvents(); //awaits button press
-		do_movement();
+		cam.do_movement(deltaTime);
 		
 		glClearColor(0.2f, 0.3f, 0.5f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -178,9 +186,10 @@ int main()
 		//model = glm::rotate(model, (GLfloat)glfwGetTime()*glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // alternative, in the assignment glm::degrees(-0.1f) was the speed requested.
 		model = glm::rotate(model, currentFrame*glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // alternative, in the assignment glm::degrees(-0.1f) was the speed requested.
 		glm::mat4 view; //View matrix
-		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+		view = glm::lookAt(cam.cameraPos, cam.cameraPos + cam.cameraFront, cam.cameraUp);
 		glm::mat4 projection; //Projection matrix
-		projection = glm::perspective(glm::radians(45.0f), (GLfloat)640.0f / (GLfloat)480.0f, 0.5f, 20.0f);
+		//projection = glm::perspective(glm::radians(45.0f), (GLfloat)640.0f / (GLfloat)480.0f, 0.5f, 20.0f);
+		projection = glm::perspective(glm::radians(45.0f), (GLfloat)Width / (GLfloat)Height, 0.5f, 30.0f);
 
 		GLint modelLoc = glGetUniformLocation(ourShader.Program, "model");
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -212,7 +221,7 @@ int main()
 	return 0;
 }
 
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
+/*void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) // if escape is presseed
 		glfwSetWindowShouldClose(window, GL_TRUE); // close window
@@ -223,9 +232,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		else if (action == GLFW_RELEASE)
 			keys[key] = false;
 	}
-}
+}*/
 
-void do_movement()
+/*void do_movement()
 {
 	//camera controls
 	GLfloat cameraSpeed = 5.0f * deltaTime;
@@ -241,10 +250,10 @@ void do_movement()
 		cameraPos += cameraSpeed * cameraUp;
 	if (keys[GLFW_KEY_C])
 		cameraPos -= cameraSpeed * cameraUp;
-}
+}*/
 
-bool firstMouse = true;
-void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+//bool firstMouse = true;
+/*void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
 	if (firstMouse)
 	{
@@ -277,4 +286,4 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	cameraFront = glm::normalize(front);
 
 	//cameraFront = glm::normalize(glm::vec3(cos(glm::radians(yaw)) * cos(glm::radians(pitch)), sin(glm::radians(pitch)), sin(glm::radians(yaw)) * cos(glm::radians(pitch))));
-}
+}*/
