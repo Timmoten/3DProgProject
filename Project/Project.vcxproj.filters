@@ -16,6 +16,9 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{556ecafd-3dc2-405e-a712-664586d4c1c4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="extrafil">
+      <UniqueIdentifier>{84428204-cd40-4f9b-b8d2-7bbd365c6d07}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -42,6 +45,9 @@
     </None>
     <None Include="frag.glsl">
       <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\Debug\glew32.dll">
+      <Filter>extrafil</Filter>
     </None>
   </ItemGroup>
 </Project>

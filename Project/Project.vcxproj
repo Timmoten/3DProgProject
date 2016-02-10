@@ -156,6 +156,7 @@
     <ClInclude Include="Shader.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Debug\glew32.dll" />
     <None Include="frag.glsl" />
     <None Include="geometry.glsl" />
     <None Include="vertex.glsl" />
