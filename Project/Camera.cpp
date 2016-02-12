@@ -3,16 +3,46 @@
 
 Camera::Camera()
 {
+	glm::vec3 tempUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
 	GLfloat lastX = 800.0f / 2.0;
 	GLfloat lastY = 600.0f / 2.0;
 	firstMouse = true;
+
+	cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+	cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+	cameraDirection = glm::normalize(cameraPos - cameraTarget);
+	cameraRight = glm::normalize(glm::cross(tempUp, cameraDirection));
+	cameraUp = glm::cross(cameraDirection, cameraRight);
+	cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+
+	yaw = -90.0f; // Yaw is initialized to -90.0 degrees since a yaw of 0.0 results in a direction vector pointing to the right (due to how Eular angles work) so we initially rotate a bit to the left.
+	pitch = 0.0f;
+
+	for (int i = 0; i < 1024; i++)
+		keys[i] = false;
 }
 
 Camera::Camera(GLuint W, GLuint H)
 {
+	glm::vec3 tempUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
 	GLfloat lastX = W / 2.0;
 	GLfloat lastY = H / 2.0;
 	firstMouse = true;
+
+	cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+	cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+	cameraDirection = glm::normalize(cameraPos - cameraTarget);
+	cameraRight = glm::normalize(glm::cross(tempUp, cameraDirection));
+	cameraUp = glm::cross(cameraDirection, cameraRight);
+	cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+
+	yaw = -90.0f; // Yaw is initialized to -90.0 degrees since a yaw of 0.0 results in a direction vector pointing to the right (due to how Eular angles work) so we initially rotate a bit to the left.
+	pitch = 0.0f;
+
+	for (int i = 0; i < 1024; i++)
+		keys[i] = false;
 }
 
 void Camera::mouse_callback(GLFWwindow* window, double xpos, double ypos)
@@ -62,6 +92,11 @@ void Camera::key_callback(GLFWwindow* window, int key, int scancode, int action,
 		glfwSetWindowShouldClose(window, GL_TRUE); // close window
 	if (key >= 0 && key < 1024)
 	{
+		if (keys[key] == keys[GLFW_KEY_W])
+			std::cout << "W key was pressed." << std::endl;
+		else if(keys[key] == keys[GLFW_KEY_S])
+			std::cout << "S key was pressed." << std::endl;
+
 		if (action == GLFW_PRESS)
 			keys[key] = true;
 		else if (action == GLFW_RELEASE)
@@ -73,7 +108,6 @@ void Camera::key_Callback(GLFWwindow* window, int key, int scancode, int action,
 {
 	Camera* cam=(Camera*)glfwGetWindowUserPointer(window);
 	cam->key_callback(window, key, scancode, action, mode);
-	
 }
 
 void Camera::do_movement(GLfloat dT)
