@@ -18,7 +18,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-struct face { int v, uv, n; };
+struct objVertice { int v, uv, n; };
+struct face { objVertice vert1, vert2, vert3; };
+
 
 void removeSlash(std::string &str)
 {
@@ -28,7 +30,12 @@ void removeSlash(std::string &str)
 	return;
 }
 
-void readOBJ()
+void readOBJ(
+	std::vector<glm::vec3> out_vertices,
+	std::vector<glm::vec2> out_uvs,
+	std::vector<glm::vec3> out_normals,
+	std::vector<face> out_faces
+	)
 {
 	std::string fileName("cube.obj"), line;
 	//std::string line;
@@ -79,11 +86,11 @@ void readOBJ()
 			removeSlash(line);
 			inputString = std::istringstream(line.substr(2));
 			
-			for (int i = 0; i < 3; i++)
-			{
-				inputString >> tempFace.v >> tempFace.uv >> tempFace.n;
-				faces.push_back(tempFace);
-			}
+			inputString >> tempFace.vert1.v >> tempFace.vert1.uv >> tempFace.vert1.n
+				>> tempFace.vert2.v >> tempFace.vert2.uv >> tempFace.vert2.n
+				>> tempFace.vert3.v >> tempFace.vert3.uv >> tempFace.vert3.n;
+			
+			faces.push_back(tempFace);
 			
 			
 		}
@@ -91,31 +98,50 @@ void readOBJ()
 
 	for (int i = 0; i < faces.size(); i++)
 	{
-		faces[i].v--;
+		faces[i].vert1.v--;
+		faces[i].vert2.v--;
+		faces[i].vert3.v--;
+		faces[i].vert1.uv--;
+		faces[i].vert2.uv--;
+		faces[i].vert3.uv--;
+		faces[i].vert1.n--;
+		faces[i].vert2.n--;
+		faces[i].vert3.n--;
 	}
+
 
 	for (int i = 0; i < vertices.size(); i++)
 	{
+		out_vertices.push_back(vertices[i]);
 		std::cout << "v[" << i << "].x = " << vertices[i].x << " ";
 		std::cout << "v[" << i << "].y = " << vertices[i].y << " ";
 		std::cout << "v[" << i << "].z = " << vertices[i].z << std::endl;
 	}
 	for (int i = 0; i < uvs.size(); i++)
 	{
+		out_uvs.push_back(uvs[i]);
 		std::cout << "uv[" << i << "].x = " << uvs[i].x << " ";
 		std::cout << "uv[" << i << "].y = " << uvs[i].y << std::endl;
 	}
 	for (int i = 0; i < normals.size(); i++)
 	{
+		out_normals.push_back(normals[i]);
 		std::cout << "n[" << i << "].x = " << normals[i].x << " ";
 		std::cout << "n[" << i << "].y = " << normals[i].y << " ";
 		std::cout << "n[" << i << "].z = " << normals[i].z << std::endl;
 	}
 	for (int i = 0; i < faces.size(); i++)
 	{
-		std::cout << "f[" << i << "].v = " << faces[i].v << " ";
-		std::cout << "f[" << i << "].uv = " << faces[i].uv << " ";
-		std::cout << "f[" << i << "].n = " << faces[i].n << std::endl;
+		out_faces.push_back(faces[i]);
+		std::cout << "f[" << i << "].vert1.v = " << faces[i].vert1.v << " ";
+		std::cout << "f[" << i << "].vert1.uv = " << faces[i].vert1.uv << " ";
+		std::cout << "f[" << i << "].vert1.n = " << faces[i].vert1.n << std::endl;
+		std::cout << "f[" << i << "].vert2.v = " << faces[i].vert2.v << " ";
+		std::cout << "f[" << i << "].vert2.uv = " << faces[i].vert2.uv << " ";
+		std::cout << "f[" << i << "].vert2.n = " << faces[i].vert2.n << std::endl;
+		std::cout << "f[" << i << "].vert3.v = " << faces[i].vert3.v << " ";
+		std::cout << "f[" << i << "].vert3.uv = " << faces[i].vert3.uv << " ";
+		std::cout << "f[" << i << "].vert3.n = " << faces[i].vert3.n << std::endl;
 	}
 
 	myFile.close();
