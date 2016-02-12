@@ -18,6 +18,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+struct face { int v, uv, n; };
+
 void removeSlash(std::string &str)
 {
 	for (int i = 0; i < str.length(); i++)
@@ -29,6 +31,7 @@ void removeSlash(std::string &str)
 void readOBJ()
 {
 	std::string fileName("cube.obj"), line;
+	//std::string line;
 	std::ifstream myFile(fileName); //File open for input operations
 	
 	if (myFile.is_open())
@@ -44,8 +47,6 @@ void readOBJ()
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec3> normals;
 	std::vector<glm::vec2> uvs;
-	struct face { std::string v, uv, n; };
-	//std::vector<face> faces;
 	std::vector<face> faces;
 
 	glm::vec3 tempVert;
@@ -88,7 +89,12 @@ void readOBJ()
 		}
 	}
 
-	/*for (int i = 0; i < vertices.size(); i++)
+	for (int i = 0; i < faces.size(); i++)
+	{
+		faces[i].v--;
+	}
+
+	for (int i = 0; i < vertices.size(); i++)
 	{
 		std::cout << "v[" << i << "].x = " << vertices[i].x << " ";
 		std::cout << "v[" << i << "].y = " << vertices[i].y << " ";
@@ -110,7 +116,7 @@ void readOBJ()
 		std::cout << "f[" << i << "].v = " << faces[i].v << " ";
 		std::cout << "f[" << i << "].uv = " << faces[i].uv << " ";
 		std::cout << "f[" << i << "].n = " << faces[i].n << std::endl;
-	}*/
+	}
 
 	myFile.close();
 	return;
