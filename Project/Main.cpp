@@ -63,7 +63,8 @@ int main()
 	//initializes GLFW
 	glfwInit();
 	
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); //version 3.3
+	
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);//version 3.3
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // using core profile
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE); //not resizable
@@ -77,6 +78,24 @@ int main()
 		return -1;
 	}
 	glfwMakeContextCurrent(window);
+
+	/*
+	Shows the OpenGl version currently in use. If glfWindowHint is commented out, it should by default
+	try to use the the latest supported version, so you could use this to test if you're sitting on a computer 
+	that doesn't support the version you want to use...
+	*/ 
+	const GLubyte *test = glGetString(GL_VERSION);
+	if (test != nullptr)
+	{
+		std::cout << "OpenGL version used: ";
+		int testInt = 0;
+		while (test[testInt] != '\0')
+		{
+			std::cout << test[testInt];
+			testInt++;
+		}
+	}
+	std::cout << std::endl;
 
 	//sets callback functions
 	Camera cam(Width, Height);
