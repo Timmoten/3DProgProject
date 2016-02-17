@@ -161,6 +161,8 @@
     <None Include="..\Debug\glew32.dll" />
     <None Include="frag.glsl" />
     <None Include="geometry.glsl" />
+    <None Include="lightFrag.glsl" />
+    <None Include="lightVertex.glsl" />
     <None Include="vertex.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

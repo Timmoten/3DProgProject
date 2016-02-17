@@ -55,5 +55,11 @@
     <None Include="..\Debug\glew32.dll">
       <Filter>extrafil</Filter>
     </None>
+    <None Include="lightFrag.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="lightVertex.glsl">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
