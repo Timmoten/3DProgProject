@@ -92,11 +92,6 @@ void Camera::key_callback(GLFWwindow* window, int key, int scancode, int action,
 		glfwSetWindowShouldClose(window, GL_TRUE); // close window
 	if (key >= 0 && key < 1024)
 	{
-		if (keys[key] == keys[GLFW_KEY_W])
-			std::cout << "W key was pressed." << std::endl;
-		else if(keys[key] == keys[GLFW_KEY_S])
-			std::cout << "S key was pressed." << std::endl;
-
 		if (action == GLFW_PRESS)
 			keys[key] = true;
 		else if (action == GLFW_RELEASE)
