@@ -22,31 +22,8 @@
 #include "bth_image.h"
 #include "Camera.h"
 
-//function prototypes
-//void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode); //creates the callback?
-//void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-//void do_movement();
-
-//Window size
-//const GLuint Width = 800, Height = 600;
-
-//Camera
-/*glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
-glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
-glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
-glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-GLfloat yaw = -90.0f;	// Yaw is initialized to -90.0 degrees since a yaw of 0.0 results in a direction vector pointing to the right (due to how Eular angles work) so we initially rotate a bit to the left.
-GLfloat pitch = 0.0f;
-GLfloat lastX = Width / 2.0;
-GLfloat lastY = Height / 2.0;*/
-//bool keys[1024];
-
-// Deltatime
-//GLfloat deltaTime = 0.0f;	// Time between current frame and last frame
-//GLfloat lastFrame = 0.0f;  	// Time of last frame
+//loads Texture from a very specific .h file. Probably a throwaway function.
+void loadTexture(GLuint *texture, GLuint width, GLuint height, unsigned char* data);
 
 int main()
 {
@@ -58,8 +35,7 @@ int main()
 	GLchar* VS = "vertex.glsl";
 	GLchar* GS = "geometry.glsl";
 	GLchar* FS = "frag.glsl";
-	//GLint Width = 800;
-	//GLint Height = 600;
+
 	//initializes GLFW
 	glfwInit();
 	
@@ -138,23 +114,7 @@ int main()
 
 	//Texture
 	GLuint texture;
-
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture); // all following GL_TEXTURE_2D operations affect this texture now
-										  
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-
-	//set texture filtering
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	//Load, create, texture and generate mipmaps
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, BTH_IMAGE_WIDTH, BTH_IMAGE_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, BTH_IMAGE_DATA); //check bth_image.h
-	glGenerateMipmap(GL_TEXTURE_2D);
-
-	glBindTexture(GL_TEXTURE_2D, 0);
-
+	loadTexture(&texture, BTH_IMAGE_WIDTH, BTH_IMAGE_HEIGHT, BTH_IMAGE_DATA);
 
 	GLuint VAO, VBO, EBO;
 	glGenVertexArrays(1, &VAO);
@@ -170,7 +130,7 @@ int main()
 
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
-	glEnableVertexAttribArray(0); //When refercing this position attribute in the shaders it will be stored at location 0
+	glEnableVertexAttribArray(0); //When referencing this position attribute in the shaders it will be stored at location 0
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(1);
 
@@ -240,69 +200,23 @@ int main()
 	return 0;
 }
 
-/*void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
+void loadTexture(GLuint *texture, GLuint width, GLuint height, unsigned char* data)
 {
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) // if escape is presseed
-		glfwSetWindowShouldClose(window, GL_TRUE); // close window
-	if (key >= 0 && key < 1024)
-	{
-		if (action == GLFW_PRESS)
-			keys[key] = true;
-		else if (action == GLFW_RELEASE)
-			keys[key] = false;
-	}
-}*/
+	glGenTextures(1, texture);
+	glBindTexture(GL_TEXTURE_2D, *texture); // all following GL_TEXTURE_2D operations affect this texture now
 
-/*void do_movement()
-{
-	//camera controls
-	GLfloat cameraSpeed = 5.0f * deltaTime;
-	if (keys[GLFW_KEY_W])
-		cameraPos += cameraSpeed * cameraFront;
-	if (keys[GLFW_KEY_S])
-		cameraPos -= cameraSpeed * cameraFront;
-	if (keys[GLFW_KEY_A])
-		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-	if (keys[GLFW_KEY_D])
-		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-	if (keys[GLFW_KEY_SPACE])
-		cameraPos += cameraSpeed * cameraUp;
-	if (keys[GLFW_KEY_C])
-		cameraPos -= cameraSpeed * cameraUp;
-}*/
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
-//bool firstMouse = true;
-/*void mouse_callback(GLFWwindow* window, double xpos, double ypos)
-{
-	if (firstMouse)
-	{
-		lastX = xpos;
-		lastY = ypos;
-		firstMouse = false;
-	}
+	//set texture filtering
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	GLfloat xoffset = xpos - lastX;
-	GLfloat yoffset = lastY - ypos;
-	lastX = xpos;
-	lastY = ypos;
+	//Load, create, texture and generate mipmaps
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data); //check bth_image.h
+	glGenerateMipmap(GL_TEXTURE_2D);
 
-	GLfloat sensitivity = 0.05;
-	xoffset *= sensitivity;
-	yoffset *= sensitivity;
+	glBindTexture(GL_TEXTURE_2D, 0);
 
-	yaw += xoffset;
-	pitch += yoffset;
-
-	if (pitch > 89.0f)
-		pitch = 89.0f;
-	if (pitch < -89.0f)
-		pitch = -89.0f;
-
-	glm::vec3 front;
-	front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-	front.y = sin(glm::radians(pitch));
-	front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-	cameraFront = glm::normalize(front);
-
-	//cameraFront = glm::normalize(glm::vec3(cos(glm::radians(yaw)) * cos(glm::radians(pitch)), sin(glm::radians(pitch)), sin(glm::radians(yaw)) * cos(glm::radians(pitch))));
-}*/
+	return;
+}
