@@ -25,6 +25,9 @@
 //loads Texture from a very specific .h file. Probably a throwaway function.
 void loadTexture(GLuint *texture, GLuint width, GLuint height, unsigned char* data);
 
+//Prints the OpenGL version the program is using, must be put after glfwMakeContextCurrent (I believe)
+void printOGLVersion();
+
 int main()
 {
 	// Deltatime
@@ -55,23 +58,9 @@ int main()
 	}
 	glfwMakeContextCurrent(window);
 
-	/*
-	Shows the OpenGl version currently in use. If glfWindowHint is commented out, it should by default
-	try to use the the latest supported version, so you could use this to test if you're sitting on a computer 
-	that doesn't support the version you want to use...
-	*/ 
-	const GLubyte *test = glGetString(GL_VERSION);
-	if (test != nullptr)
-	{
-		std::cout << "OpenGL version used: ";
-		int testInt = 0;
-		while (test[testInt] != '\0')
-		{
-			std::cout << test[testInt];
-			testInt++;
-		}
-	}
-	std::cout << std::endl;
+	//Prints OpenGL version in use
+	printOGLVersion();
+
 
 	//sets callback functions
 	Camera cam(Width, Height);
@@ -102,15 +91,12 @@ int main()
 		-0.5f,  0.5f, 0.0f,   0.0f, 1.0f		// Top Left 
 	};
 
-
 	GLuint indices[] = {  // start at 0
 		0, 1, 3,   // First Triangle
 		1, 2, 3    // Second Triangle
 	};
 
-
 	Shader ourShader(VS, GS, FS);
-
 
 	//Texture
 	GLuint texture;
@@ -133,8 +119,6 @@ int main()
 	glEnableVertexAttribArray(0); //When referencing this position attribute in the shaders it will be stored at location 0
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(1);
-
-
 
 	glBindVertexArray(0);// unbind VAO
 
@@ -162,12 +146,10 @@ int main()
 		glUniform1i(glGetUniformLocation(ourShader.Program, "ourTexture"), 0);
 		 
 		glm::mat4 model; //Model matrix
-		//model = glm::rotate(model, (GLfloat)glfwGetTime()*glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // alternative, in the assignment glm::degrees(-0.1f) was the speed requested.
 		model = glm::rotate(model, currentFrame*glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // alternative, in the assignment glm::degrees(-0.1f) was the speed requested.
 		glm::mat4 view; //View matrix
 		view = cam.getView();
 		glm::mat4 projection; //Projection matrix
-		//projection = glm::perspective(glm::radians(45.0f), (GLfloat)640.0f / (GLfloat)480.0f, 0.5f, 20.0f);
 		projection = glm::perspective(glm::radians(45.0f), (GLfloat)Width / (GLfloat)Height, 0.5f, 30.0f);
 
 		GLint modelLoc = glGetUniformLocation(ourShader.Program, "model");
@@ -219,4 +201,25 @@ void loadTexture(GLuint *texture, GLuint width, GLuint height, unsigned char* da
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	return;
+}
+
+void printOGLVersion()
+{
+	/*
+	Shows the OpenGl version currently in use. If glfWindowHint is commented out, it should by default
+	try to use the the latest supported version, so you could use this to test if you're sitting on a computer
+	that doesn't support the version you want to use...
+	*/
+	const GLubyte *test = glGetString(GL_VERSION);
+	if (test != nullptr)
+	{
+		std::cout << "OpenGL version used: ";
+		int testInt = 0;
+		while (test[testInt] != '\0')
+		{
+			std::cout << test[testInt];
+			testInt++;
+		}
+	}
+	std::cout << std::endl;
 }
