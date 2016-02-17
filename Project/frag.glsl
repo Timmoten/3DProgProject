@@ -15,19 +15,9 @@ uniform vec4 lightPosition;
 
 void main()
 {
-	vec4 lightDirection = (lightPosition - fs_in.worldPosition);
-	lightDirection = normalize(lightDirection);
-	float angle = max(dot(fs_in.normalWorld, lightDirection),0.0f);
-	vec4 diffuse = angle * lightColor;
-	/*if (diffuse.x > 1)
-		diffuse.x = 1;
-	if (diffuse.y > 1)
-		diffuse.y = 1;
-	if (diffuse.z > 1)
-		diffuse.z = 1;*/
+	float ambientStrength = 0.15f;
+	vec4 ambient = ambientStrength * lightColor;
 
-	color = diffuse * texture(ourTexture, fs_in.TexCoord);
+	color = ambient * texture(ourTexture, fs_in.TexCoord);
 
-	//if (color.rgb == vec3(0.0, 0.0, 0.0)) //removes the black areas around the logo
-		//discard;
 }

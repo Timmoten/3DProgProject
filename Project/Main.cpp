@@ -20,44 +20,30 @@
 #include <stdio.h>
 #include "Shader.h"
 #include "bth_image.h"
+#include "Camera.h"
 
-//function prototypes
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode); //creates the callback?
-void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-void do_movement();
+//loads Texture from a very specific .h file. Probably a throwaway function.
+void loadTexture(GLuint *texture, GLuint width, GLuint height, unsigned char* data);
 
-//Window size
-const GLuint Width = 800, Height = 600;
-
-//Camera
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
-glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
-glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
-glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-GLfloat yaw = -90.0f;	// Yaw is initialized to -90.0 degrees since a yaw of 0.0 results in a direction vector pointing to the right (due to how Eular angles work) so we initially rotate a bit to the left.
-GLfloat pitch = 0.0f;
-GLfloat lastX = Width / 2.0;
-GLfloat lastY = Height / 2.0;
-bool keys[1024];
-
-// Deltatime
-GLfloat deltaTime = 0.0f;	// Time between current frame and last frame
-GLfloat lastFrame = 0.0f;  	// Time of last frame
+//Prints the OpenGL version the program is using, must be put after glfwMakeContextCurrent (I believe)
+void printOGLVersion();
 
 int main()
 {
+	// Deltatime
+	GLfloat deltaTime = 0.0f;	// Time between current frame and last frame
+	GLfloat lastFrame = 0.0f;  	// Time of last frame
+
+	const GLuint Width = 800, Height = 600;
 	GLchar* VS = "vertex.glsl";
 	GLchar* GS = "geometry.glsl";
 	GLchar* FS = "frag.glsl";
-	//GLint Width = 800;
-	//GLint Height = 600;
+
 	//initializes GLFW
 	glfwInit();
 	
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); //version 3.3
+	
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);//version 3.3
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // using core profile
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE); //not resizable
@@ -72,9 +58,15 @@ int main()
 	}
 	glfwMakeContextCurrent(window);
 
+	//Prints OpenGL version in use
+	printOGLVersion();
+
+
 	//sets callback functions
-	glfwSetKeyCallback(window, key_callback); // registering the callback function
-	glfwSetCursorPosCallback(window, mouse_callback);
+	Camera cam(Width, Height);
+	glfwSetWindowUserPointer(window, &cam);
+	glfwSetKeyCallback(window, Camera::key_Callback); // registering the callback function
+	glfwSetCursorPosCallback(window, Camera::mouse_Callback);
 
 	//GLFW options
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -99,35 +91,16 @@ int main()
 		-0.5f,  0.5f, 0.0f,   0.0f, 1.0f		// Top Left 
 	};
 
-
 	GLuint indices[] = {  // start at 0
 		0, 1, 3,   // First Triangle
 		1, 2, 3    // Second Triangle
 	};
 
-
 	Shader ourShader(VS, GS, FS);
-
 
 	//Texture
 	GLuint texture;
-
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture); // all following GL_TEXTURE_2D operations affect this texture now
-										  
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-
-	//set texture filtering
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	//Load, create, texture and generate mipmaps
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, BTH_IMAGE_WIDTH, BTH_IMAGE_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, BTH_IMAGE_DATA); //check bth_image.h
-	glGenerateMipmap(GL_TEXTURE_2D);
-
-	glBindTexture(GL_TEXTURE_2D, 0);
-
+	loadTexture(&texture, BTH_IMAGE_WIDTH, BTH_IMAGE_HEIGHT, BTH_IMAGE_DATA);
 
 	GLuint VAO, VBO, EBO;
 	glGenVertexArrays(1, &VAO);
@@ -143,11 +116,9 @@ int main()
 
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
-	glEnableVertexAttribArray(0); //When refercing this position attribute in the shaders it will be stored at location 0
+	glEnableVertexAttribArray(0); //When referencing this position attribute in the shaders it will be stored at location 0
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(1);
-
-
 
 	glBindVertexArray(0);// unbind VAO
 
@@ -161,7 +132,7 @@ int main()
 		lastFrame = currentFrame;
 
 		glfwPollEvents(); //awaits button press
-		do_movement();
+		cam.do_movement(deltaTime);
 		
 		glClearColor(0.2f, 0.3f, 0.5f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -175,12 +146,11 @@ int main()
 		glUniform1i(glGetUniformLocation(ourShader.Program, "ourTexture"), 0);
 		 
 		glm::mat4 model; //Model matrix
-		//model = glm::rotate(model, (GLfloat)glfwGetTime()*glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // alternative, in the assignment glm::degrees(-0.1f) was the speed requested.
 		model = glm::rotate(model, currentFrame*glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // alternative, in the assignment glm::degrees(-0.1f) was the speed requested.
 		glm::mat4 view; //View matrix
-		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+		view = cam.getView();
 		glm::mat4 projection; //Projection matrix
-		projection = glm::perspective(glm::radians(45.0f), (GLfloat)640.0f / (GLfloat)480.0f, 0.5f, 20.0f);
+		projection = glm::perspective(glm::radians(45.0f), (GLfloat)Width / (GLfloat)Height, 0.5f, 30.0f);
 
 		GLint modelLoc = glGetUniformLocation(ourShader.Program, "model");
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -212,69 +182,44 @@ int main()
 	return 0;
 }
 
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
+void loadTexture(GLuint *texture, GLuint width, GLuint height, unsigned char* data)
 {
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) // if escape is presseed
-		glfwSetWindowShouldClose(window, GL_TRUE); // close window
-	if (key >= 0 && key < 1024)
-	{
-		if (action == GLFW_PRESS)
-			keys[key] = true;
-		else if (action == GLFW_RELEASE)
-			keys[key] = false;
-	}
+	glGenTextures(1, texture);
+	glBindTexture(GL_TEXTURE_2D, *texture); // all following GL_TEXTURE_2D operations affect this texture now
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+	//set texture filtering
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	//Load, create, texture and generate mipmaps
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data); //check bth_image.h
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	return;
 }
 
-void do_movement()
+void printOGLVersion()
 {
-	//camera controls
-	GLfloat cameraSpeed = 5.0f * deltaTime;
-	if (keys[GLFW_KEY_W])
-		cameraPos += cameraSpeed * cameraFront;
-	if (keys[GLFW_KEY_S])
-		cameraPos -= cameraSpeed * cameraFront;
-	if (keys[GLFW_KEY_A])
-		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-	if (keys[GLFW_KEY_D])
-		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-	if (keys[GLFW_KEY_SPACE])
-		cameraPos += cameraSpeed * cameraUp;
-	if (keys[GLFW_KEY_C])
-		cameraPos -= cameraSpeed * cameraUp;
-}
-
-bool firstMouse = true;
-void mouse_callback(GLFWwindow* window, double xpos, double ypos)
-{
-	if (firstMouse)
+	/*
+	Shows the OpenGl version currently in use. If glfWindowHint is commented out, it should by default
+	try to use the the latest supported version, so you could use this to test if you're sitting on a computer
+	that doesn't support the version you want to use...
+	*/
+	const GLubyte *test = glGetString(GL_VERSION);
+	if (test != nullptr)
 	{
-		lastX = xpos;
-		lastY = ypos;
-		firstMouse = false;
+		std::cout << "OpenGL version used: ";
+		int testInt = 0;
+		while (test[testInt] != '\0')
+		{
+			std::cout << test[testInt];
+			testInt++;
+		}
 	}
-
-	GLfloat xoffset = xpos - lastX;
-	GLfloat yoffset = lastY - ypos;
-	lastX = xpos;
-	lastY = ypos;
-
-	GLfloat sensitivity = 0.05;
-	xoffset *= sensitivity;
-	yoffset *= sensitivity;
-
-	yaw += xoffset;
-	pitch += yoffset;
-
-	if (pitch > 89.0f)
-		pitch = 89.0f;
-	if (pitch < -89.0f)
-		pitch = -89.0f;
-
-	glm::vec3 front;
-	front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-	front.y = sin(glm::radians(pitch));
-	front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-	cameraFront = glm::normalize(front);
-
-	//cameraFront = glm::normalize(glm::vec3(cos(glm::radians(yaw)) * cos(glm::radians(pitch)), sin(glm::radians(pitch)), sin(glm::radians(yaw)) * cos(glm::radians(pitch))));
+	std::cout << std::endl;
 }
