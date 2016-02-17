@@ -22,6 +22,10 @@
 #include "bth_image.h"
 #include "Camera.h"
 
+//OBJloading
+#include "OBJreader.h"
+#include "Mesh.h"
+
 //loads Texture from a very specific .h file. Probably a throwaway function.
 void loadTexture(GLuint *texture, GLuint width, GLuint height, unsigned char* data);
 
@@ -122,6 +126,21 @@ int main()
 
 	glBindVertexArray(0);// unbind VAO
 
+	//Test readOBJ
+	std::string fileName = "cube.obj";
+	std::vector<glm::vec3> out_vertices;
+	std::vector<glm::vec3> out_normals;
+	std::vector<glm::vec2> out_uvs;
+	std::vector<face> out_indices;
+	std::vector<Texture> out_textures;
+	readOBJ(
+		fileName,
+		&out_vertices,
+		&out_normals,
+		&out_uvs,
+		&out_indices,
+		&out_textures
+		);
 
 
 	while (!glfwWindowShouldClose(window)) // a "game loop"
