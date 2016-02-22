@@ -86,18 +86,26 @@ int main()
 
 	glEnable(GL_DEPTH_TEST); // enables depth test
 
+
+
+	//GLfloat vertices[] =
+	//{
+	//	// Positions          // Texture Coords
+	//	0.5f,  0.5f, 0.0f,   1.0f, 1.0f,		// Top Right
+	//	0.5f, -0.5f, 0.0f,   1.0f, 0.0f,		// Bottom Right
+	//	-0.5f, -0.5f, 0.0f,   0.0f, 0.0f,		// Bottom Left
+	//	-0.5f,  0.5f, 0.0f,   0.0f, 1.0f		// Top Left 
+	//};
+
 	GLfloat vertices[] =
 	{
 		// Positions          // Texture Coords
-		0.5f,  0.5f, 0.0f,   1.0f, 1.0f,		// Top Right
-		0.5f, -0.5f, 0.0f,   1.0f, 0.0f,		// Bottom Right
-		-0.5f, -0.5f, 0.0f,   0.0f, 0.0f,		// Bottom Left
-		-0.5f,  0.5f, 0.0f,   0.0f, 1.0f		// Top Left 
-	};
-
-	GLuint indices[] = {  // start at 0
-		0, 1, 3,   // First Triangle
-		1, 2, 3    // Second Triangle
+		0.5f,  0.5f, 0.0f,	1.0f, 1.0f,
+		0.5f, -0.5f, 0.0f,  1.0f, 0.0f,
+		-0.5f,  0.5f, 0.0f, 0.0f, 1.0f,
+		0.5f, -0.5f, 0.0f,  1.0f, 0.0f,
+		-0.5f, -0.5f, 0.0f,	0.0f, 0.0f,
+		-0.5f,  0.5f, 0.0f, 0.0f, 1.0f
 	};
 
 	Shader ourShader(VS, GS, FS);
@@ -106,42 +114,57 @@ int main()
 	GLuint texture;
 	loadTexture(&texture, BTH_IMAGE_WIDTH, BTH_IMAGE_HEIGHT, BTH_IMAGE_DATA);
 
-	GLuint VAO, VBO, EBO;
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO); // gives the buffer a ID
-	glGenBuffers(1, &EBO);
-
-	glBindVertexArray(VAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
-	glEnableVertexAttribArray(0); //When referencing this position attribute in the shaders it will be stored at location 0
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(1);
-
-	glBindVertexArray(0);// unbind VAO
-
 	//Test readOBJ
-	std::string fileName = "cube.obj";
+	std::string fileName = "sphere.obj";
 	std::vector<glm::vec3> out_vertices;
 	std::vector<glm::vec3> out_normals;
 	std::vector<glm::vec2> out_uvs;
 	std::vector<face> out_indices;
-	std::vector<Texture> out_textures;
+	//std::vector<Texture> out_textures;
 	readOBJ(
 		fileName,
 		&out_vertices,
 		&out_normals,
-		&out_uvs,
-		&out_indices,
-		&out_textures
+		&out_uvs
+		//&out_textures
 		);
 
+
+	//Currently a sphere
+	GLuint VAO2, VBO2, VBO3;
+	glGenVertexArrays(1, &VAO2);
+	glBindVertexArray(VAO2);
+	//Vertice data and buffer
+	glGenBuffers(1, &VBO2);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO2);
+	glBufferData(GL_ARRAY_BUFFER, out_vertices.size() * sizeof(glm::vec3), &out_vertices[0], GL_STATIC_DRAW);
+	
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+	glEnableVertexAttribArray(0);
+
+	//UV data and buffer
+	glGenBuffers(1, &VBO3);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO3);
+	glBufferData(GL_ARRAY_BUFFER, out_uvs.size() * sizeof(glm::vec2), &out_uvs[0], GL_STATIC_DRAW);
+
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (GLvoid*)0);
+	glEnableVertexAttribArray(1);
+	
+	glBindVertexArray(0);
+
+
+	//Square
+	GLuint VAO, VBO;
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(1);
+	glBindVertexArray(0);// unbind VAO
 
 	while (!glfwWindowShouldClose(window)) // a "game loop"
 	{
@@ -159,11 +182,11 @@ int main()
 
 		//uses shader program
 		ourShader.Use();
-
+		
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture);
 		glUniform1i(glGetUniformLocation(ourShader.Program, "ourTexture"), 0);
-		 
+
 		glm::mat4 model; //Model matrix
 		model = glm::rotate(model, currentFrame*glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // alternative, in the assignment glm::degrees(-0.1f) was the speed requested.
 		glm::mat4 view; //View matrix
@@ -177,16 +200,14 @@ int main()
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		GLint projectionLoc = glGetUniformLocation(ourShader.Program, "projection");
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-		GLint lightColorLocation = glGetUniformLocation(ourShader.Program, "lightColor");
-		glUniform4f(lightColorLocation, 1.0f, 1.0f, 1.0f, 1.0f);
-		GLint lightPosLocation = glGetUniformLocation(ourShader.Program, "lightPosition");
-		glUniform4f(lightPosLocation, 0.0f, 0.0f, 3.0f, 0.0f);
 
 
-		glBindVertexArray(VAO);
-		
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); //used with element buffer
+		/*glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glBindVertexArray(0);*/
 
+		glBindVertexArray(VAO2);
+		glDrawArrays(GL_TRIANGLES, 0, out_vertices.size());
 		glBindVertexArray(0);
 		 
 		glfwSwapBuffers(window); //swap the buffers
@@ -194,7 +215,6 @@ int main()
 
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
-	glDeleteBuffers(1, &EBO);
 	glDeleteProgram(ourShader.Program);
 
 	glfwTerminate();

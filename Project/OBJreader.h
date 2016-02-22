@@ -10,16 +10,13 @@
 //For storing file data
 #include <vector>
 
-//Replacing chars in strig
-//#include <algorithm>
-
 //GLM
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 //Mesh structures
-#include "Mesh.h"
+//#include "Mesh.h"
 
 struct objVertice { int v, uv, n; };
 struct face { objVertice vert1, vert2, vert3; };
@@ -37,18 +34,13 @@ void readOBJ(
 	std::string fileName,
 	std::vector<glm::vec3> *out_vertices,
 	std::vector<glm::vec3> *out_normals,
-	std::vector<glm::vec2> *out_uvs,
-	std::vector<face> *out_indices,
-	std::vector<Texture> *out_textures
+	std::vector<glm::vec2> *out_uvs
+	//std::vector<Texture> *out_textures
 	)
 {
-	//std::string fileName("cube.obj"), line;
 	std::string line;
-	std::ifstream myFile(fileName); //File open for input operations
+	std::ifstream myFile(fileName);
 	
-	if (myFile.is_open())
-		std::cout << "File: '" << fileName << "' is currently open." << std::endl;
-
 	if (myFile.good() == false)
 	{
 		std::cout << "ERROR! UNABLE TO READ FILE: '" << fileName << "'." << std::endl;
@@ -62,7 +54,7 @@ void readOBJ(
 	std::vector<glm::vec2> uvs;
 	std::vector<face> faces;
 
-	Vertex tempVertex;
+	//Vertex tempVertex;
 
 	glm::vec3 tempVert;
 	glm::vec3 tempNorm;
@@ -105,58 +97,17 @@ void readOBJ(
 
 	for (int i = 0; i < faces.size(); i++)
 	{
-		faces[i].vert1.v--;
-		faces[i].vert2.v--;
-		faces[i].vert3.v--;
-		faces[i].vert1.uv--;
-		faces[i].vert2.uv--;
-		faces[i].vert3.uv--;
-		faces[i].vert1.n--;
-		faces[i].vert2.n--;
-		faces[i].vert3.n--;
-	}
+		out_vertices->push_back(vertices[--faces[i].vert1.v]);
+		out_vertices->push_back(vertices[--faces[i].vert2.v]);
+		out_vertices->push_back(vertices[--faces[i].vert3.v]);
 
+		out_uvs->push_back(uvs[--faces[i].vert1.uv]);
+		out_uvs->push_back(uvs[--faces[i].vert2.uv]);
+		out_uvs->push_back(uvs[--faces[i].vert3.uv]);
 
-	for (int i = 0; i < vertices.size(); i++)
-	{
-		//out_vertices->push_back(vertices[i]);
-		/*std::cout << "v[" << i << "].x = " << vertices[i].x << " ";
-		std::cout << "v[" << i << "].y = " << vertices[i].y << " ";
-		std::cout << "v[" << i << "].z = " << vertices[i].z << std::endl;*/
-	}
-	for (int i = 0; i < uvs.size(); i++)
-	{
-		//out_uvs->push_back(uvs[i]);
-		/*std::cout << "uv[" << i << "].x = " << uvs[i].x << " ";
-		std::cout << "uv[" << i << "].y = " << uvs[i].y << std::endl;*/
-	}
-	for (int i = 0; i < normals.size(); i++)
-	{
-		//out_normals->push_back(normals[i]);
-		/*std::cout << "n[" << i << "].x = " << normals[i].x << " ";
-		std::cout << "n[" << i << "].y = " << normals[i].y << " ";
-		std::cout << "n[" << i << "].z = " << normals[i].z << std::endl;*/
-	}
-	for (int i = 0; i < faces.size(); i++)
-	{
-		out_indices->push_back(faces[i]);
-
-		out_vertices->push_back()
-		//out_faces.push_back(faces[i]);
-		/*tempVertex.Position = vertices[i];
-		tempVertex.Normal = normals[i];
-		tempVertex.TexCoords = uvs[i];
-		out_vertices.push_back(tempVertex);*/
-		
-		/*std::cout << "f[" << i << "].vert1.v = " << faces[i].vert1.v << " ";
-		std::cout << "f[" << i << "].vert1.uv = " << faces[i].vert1.uv << " ";
-		std::cout << "f[" << i << "].vert1.n = " << faces[i].vert1.n << std::endl;
-		std::cout << "f[" << i << "].vert2.v = " << faces[i].vert2.v << " ";
-		std::cout << "f[" << i << "].vert2.uv = " << faces[i].vert2.uv << " ";
-		std::cout << "f[" << i << "].vert2.n = " << faces[i].vert2.n << std::endl;
-		std::cout << "f[" << i << "].vert3.v = " << faces[i].vert3.v << " ";
-		std::cout << "f[" << i << "].vert3.uv = " << faces[i].vert3.uv << " ";
-		std::cout << "f[" << i << "].vert3.n = " << faces[i].vert3.n << std::endl;*/
+		out_normals->push_back(normals[--faces[i].vert1.n]);
+		out_normals->push_back(normals[--faces[i].vert2.n]);
+		out_normals->push_back(normals[--faces[i].vert3.n]);
 	}
 
 	myFile.close();

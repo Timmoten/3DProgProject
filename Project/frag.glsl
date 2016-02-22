@@ -7,17 +7,13 @@ in GS_OUT
 	vec4 worldPosition;
 } fs_in;
 
+uniform sampler2D ourTexture;
+
 out vec4 color;
 
-uniform sampler2D ourTexture;
-uniform vec4 lightColor;
-uniform vec4 lightPosition;
 
 void main()
 {
-	float ambientStrength = 0.15f;
-	vec4 ambient = ambientStrength * lightColor;
-
-	color = ambient * texture(ourTexture, fs_in.TexCoord);
-
+	//color = vec4(1.0f, 0.0f, 0.0f, 1.0f);
+	color = texture(ourTexture, fs_in.TexCoord);
 }
