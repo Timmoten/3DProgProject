@@ -24,7 +24,7 @@
 
 //OBJloading
 #include "OBJreader.h"
-//#include "Mesh.h"
+#include "Mesh.h"
 
 //loads Texture from a very specific .h file. Probably a throwaway function.
 void loadTexture(GLuint *texture, GLuint width, GLuint height, unsigned char* data);
@@ -111,8 +111,8 @@ int main()
 	Shader ourShader(VS, GS, FS);
 
 	//Texture
-	GLuint texture;
-	loadTexture(&texture, BTH_IMAGE_WIDTH, BTH_IMAGE_HEIGHT, BTH_IMAGE_DATA);
+	//GLuint texture;
+	//loadTexture(&texture, BTH_IMAGE_WIDTH, BTH_IMAGE_HEIGHT, BTH_IMAGE_DATA);
 
 	//Test readOBJ
 	std::string fileName = "cube.obj";
@@ -129,15 +129,16 @@ int main()
 		//&out_textures
 		);
 
+	Mesh testMesh(out_vertices, out_normals, out_uvs);
 
-	//.obj object
+	/*//.obj object
 	GLuint VAO2, VBO2, VBO3;
 	glGenVertexArrays(1, &VAO2);
 	glBindVertexArray(VAO2);
 	//Vertice data and buffer
 	glGenBuffers(1, &VBO2);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO2);
-	glBufferData(GL_ARRAY_BUFFER, out_vertices.size() * sizeof(glm::vec3), &out_vertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, out_vertices.size() * sizeof(out_vertices[0]), &out_vertices[0], GL_STATIC_DRAW);
 	
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
 	glEnableVertexAttribArray(0);
@@ -150,10 +151,10 @@ int main()
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (GLvoid*)0);
 	glEnableVertexAttribArray(1);
 	
-	glBindVertexArray(0);
+	glBindVertexArray(0);*/
 
 
-	//Square
+	/*//Square
 	GLuint VAO, VBO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
@@ -164,7 +165,7 @@ int main()
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(1);
-	glBindVertexArray(0);// unbind VAO
+	glBindVertexArray(0);// unbind VAO*/
 
 	while (!glfwWindowShouldClose(window)) // a "game loop"
 	{
@@ -183,10 +184,6 @@ int main()
 		//uses shader program
 		ourShader.Use();
 		
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture);
-		glUniform1i(glGetUniformLocation(ourShader.Program, "ourTexture"), 0);
-
 		glm::mat4 model; //Model matrix
 		model = glm::rotate(model, currentFrame*glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // alternative, in the assignment glm::degrees(-0.1f) was the speed requested.
 		glm::mat4 view; //View matrix
@@ -201,20 +198,13 @@ int main()
 		GLint projectionLoc = glGetUniformLocation(ourShader.Program, "projection");
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-
-		/*glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		glBindVertexArray(0);*/
-
-		glBindVertexArray(VAO2);
-		glDrawArrays(GL_TRIANGLES, 0, out_vertices.size());
-		glBindVertexArray(0);
+		testMesh.Draw(ourShader);
 		 
 		glfwSwapBuffers(window); //swap the buffers
 	}
 
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
+	//glDeleteVertexArrays(1, &VAO);
+	//glDeleteBuffers(1, &VBO);
 	glDeleteProgram(ourShader.Program);
 
 	glfwTerminate();

@@ -47,7 +47,19 @@ void readOBJ(
 		return;
 	}
 	
+
+
 	std::istringstream inputString;
+	
+	std::vector<std::string> mtlFileName;
+	std::vector<std::string> mtlName;
+	
+	struct Group { 
+		
+	};
+	
+
+	std::string tempStr;
 	
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec3> normals;
@@ -63,6 +75,18 @@ void readOBJ(
 	
 	while (std::getline(myFile, line))
 	{
+		if (line.substr(0, 7) == "mtllib ")
+		{
+			inputString = std::istringstream(line.substr(7));
+			inputString >> tempStr;
+			mtlFileName.push_back(tempStr);
+		}
+		if (line.substr(0, 7) == "usemtl ")
+		{
+			inputString = std::istringstream(line.substr(7));
+			inputString >> tempStr;
+			mtlName.push_back(tempStr);
+		}
 		if (line.substr(0, 2) == "v ")
 		{
 			inputString = std::istringstream(line.substr(2));
