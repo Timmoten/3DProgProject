@@ -24,7 +24,7 @@
 
 //OBJloading
 #include "OBJreader.h"
-#include "Mesh.h"
+//#include "Mesh.h"
 
 //loads Texture from a very specific .h file. Probably a throwaway function.
 void loadTexture(GLuint *texture, GLuint width, GLuint height, unsigned char* data);
@@ -115,7 +115,7 @@ int main()
 	loadTexture(&texture, BTH_IMAGE_WIDTH, BTH_IMAGE_HEIGHT, BTH_IMAGE_DATA);
 
 	//Test readOBJ
-	std::string fileName = "sphere.obj";
+	std::string fileName = "cube.obj";
 	std::vector<glm::vec3> out_vertices;
 	std::vector<glm::vec3> out_normals;
 	std::vector<glm::vec2> out_uvs;
@@ -130,7 +130,7 @@ int main()
 		);
 
 
-	//Currently a sphere
+	//.obj object
 	GLuint VAO2, VBO2, VBO3;
 	glGenVertexArrays(1, &VAO2);
 	glBindVertexArray(VAO2);
