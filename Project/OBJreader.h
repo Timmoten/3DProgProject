@@ -39,9 +39,9 @@ void readOBJ(
 	)
 {
 	std::string line;
-	std::ifstream myFile(fileName);
+	std::ifstream objFile(fileName);
 	
-	if (myFile.good() == false)
+	if (objFile.good() == false)
 	{
 		std::cout << "ERROR! UNABLE TO READ FILE: '" << fileName << "'." << std::endl;
 		return;
@@ -52,10 +52,21 @@ void readOBJ(
 	std::istringstream inputString;
 	
 	std::vector<std::string> mtlFileName;
-	std::vector<std::string> mtlName;
+	
+	struct Material {
+		std::string name;
+		glm::vec3 diffuse;
+		glm::vec3 ambient;
+		glm::vec3 specular;
+		std::string diffuseTexPath;
+		//std::string ambientTexPath;
+	};
+	std::vector<Material> materials;
+	std::string * currentMTL;
 	
 	struct Group { 
-		
+		std::string groupName;
+		std::vector<std::string*> mtlName;
 	};
 	
 
@@ -73,7 +84,7 @@ void readOBJ(
 	glm::vec2 tempUv;
 	face tempFace;
 	
-	while (std::getline(myFile, line))
+	while (std::getline(objFile, line))
 	{
 		if (line.substr(0, 7) == "mtllib ")
 		{
@@ -85,7 +96,7 @@ void readOBJ(
 		{
 			inputString = std::istringstream(line.substr(7));
 			inputString >> tempStr;
-			mtlName.push_back(tempStr);
+			//mtlName.push_back(tempStr);
 		}
 		if (line.substr(0, 2) == "v ")
 		{
@@ -119,6 +130,31 @@ void readOBJ(
 		}
 	}
 
+	objFile.close();
+
+	for (int i = 0; i < mtlFileName.size(); i++)
+	{
+		std::ifstream mtlFile(mtlFileName[i]);
+
+		if (mtlFile.good() == false)
+		{
+			std::cout << "ERROR! UNABLE TO READ FILE: '" << mtlFileName[i] << "'." << std::endl;
+			return;
+		}
+
+		while (std::getline(objFile, line))
+		{
+			if (line.substr(0, 7) == "newmtl ")
+			{
+				inputString = std::istringstream(line.substr(7));
+				inputString >> tempStr;
+				//mtlFileName.push_back(tempStr);
+			}
+		}
+
+	}
+
+
 	for (int i = 0; i < faces.size(); i++)
 	{
 		out_vertices->push_back(vertices[--faces[i].vert1.v]);
@@ -134,7 +170,7 @@ void readOBJ(
 		out_normals->push_back(normals[--faces[i].vert3.n]);
 	}
 
-	myFile.close();
+	
 	return;
 }
 
